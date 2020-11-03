@@ -2,7 +2,6 @@ package ubb.scs.lftc.lab4;
 
 import ubb.scs.lftc.lab4.model.State;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -25,8 +24,6 @@ public class AF {
      * Printeaza elementele automatului finit curent
      * Printeaza starile automatului, starea initiala, starea finala, alfabetul si tranzitiile
      */
-
-
     public void printAFDetails() {
         System.out.print("Alfabet: ");
         for (String s : alphabet) {
@@ -130,7 +127,6 @@ public class AF {
         String start = String.valueOf(line.charAt(0));
         String end = String.valueOf(line.charAt(2));
         String transit = String.valueOf(line.charAt(1));
-
         state.get(start).addDestination(transit, state.get(end));
     }
 
@@ -214,63 +210,6 @@ public class AF {
         return currentStat.getDestinations().get(next);
     }
 
-    public boolean checkSequence(String sequence) {
-        if (checkSequenceBool(sequence))
-            throw new RuntimeException("Literal incorect");
-        return checkSequence(initialState, sequence);
-    }
-
-    private boolean checkSequence(State currentState, String sequence) {
-
-        if (currentState.isFinalState() && sequence.equals(""))
-            return true;
-
-        for (char letter : sequence.toCharArray()) {
-            List<State> nextStates = getNextStatesByLetter(currentState, String.valueOf(letter));
-
-            if (nextStates.isEmpty())
-                return false;
-
-            for (State state : nextStates) {
-                if (checkSequence(state, sequence.substring(1)))
-                    return true;
-            }
-
-            return false;
-        }
-
-        return false;
-    }
-
-    public String theBiggestSequence(String sequence) {
-        ArrayList<String> sequences = new ArrayList<>();
-        theBiggestSequence(initialState, "", sequence, sequences);
-        if (!checkSequenceBool(sequence))
-            throw new RuntimeException("Literal incorect");
-        return sequences.stream().sorted((x, y) -> y.length() - x.length()).findFirst().orElse("");
-    }
-
-    private void theBiggestSequence(State currentState, String currentSequence, String entireSequence, List<String> foundSequences) {
-        if (currentState.isFinalState()) {
-            foundSequences.add(currentSequence);
-        }
-
-        if (entireSequence.length() == 0) {
-            return;
-        }
-
-        for (char letter : entireSequence.toCharArray()) {
-            List<State> nextStates = getNextStatesByLetter(currentState, String.valueOf(letter));
-
-            if (nextStates.isEmpty())
-                return;
-
-            for (State state : nextStates) {
-                theBiggestSequence(state, currentSequence + letter, entireSequence.substring(1), foundSequences);
-            }
-        }
-    }
-
     private boolean checkSequenceBool(String sequence) {
         for (char a : sequence.toCharArray()) {
             if (!state.containsKey(String.valueOf(a))) {
@@ -279,7 +218,176 @@ public class AF {
         }
         return true;
     }
+
+    private boolean isRoad(State state, String letter){
+        if(state.getDestinations().containsKey(letter)){
+            return true;
+        }
+        return false;
+    }
+
+    public void checkSequence1(List<String> lines ) throws Exception {
+        //List<String> lines = new IOActions(fileName).read();
+        for (String sequence : lines) {
+            //checkIfAlphabetContainsLetters(sequence);
+
+            int i = 0;
+            StringBuilder result = new StringBuilder();
+            StringBuilder buffer = new StringBuilder();
+            State s = initialState;
+            while (i < sequence.length()
+                    && isRoad(s, Character.toString(sequence.charAt(i)))) {
+                s = s.getDestinations()
+                        .get(Character.toString(sequence.charAt(i))).get(0);
+                buffer.append(sequence.charAt(i));
+                if (s.isFinalState()) {
+                    result.delete(0, result.length());
+                    result.append(buffer);
+                }
+                i++;
+            }
+
+            printResult(sequence, result, s);
+        }
+    }
+
+    private void printResult(String sequence, StringBuilder result, State s) {
+        if (result.length() == sequence.length() && s.isFinalState()) {
+            System.out.println("Secventa " + sequence
+                    + " este acceptata de automat finit");
+        } else {
+            if (result.length() != 0) {
+                System.out
+                        .println("Secventa "
+                                + sequence
+                                + " nu este acceptata de automat finit, iar cel mai lung prefix acceptat este "
+                                + result.toString());
+            } else {
+                System.out
+                        .println("Secventa "
+                                + sequence
+                                + " nu este acceptata de automat finit si niciun prefix nu reprezinta o secventa acceptata");
+            }
+        }
+    }
+
+    public void printStates() {
+        System.out.print("Stari: ");
+
+        for (String state : state.keySet()) {
+            System.out.print(state + " ");
+        }
+        System.out.println("");
+    }
+
+    public void printAlphabet() {
+        System.out.print("Alfabet: ");
+
+        for (String letter : alphabet) {
+            System.out.print(letter + " ");
+        }
+
+        System.out.println("");
+    }
+
+    public void printInitialState() {
+        System.out.println("Starea initiala: " + initialState.getDescription());
+    }
+
+
+    public void printFinalStates() {
+        System.out.print("Stari finale: ");
+
+        for (State state : state.values()) {
+            if (state.isFinalState())
+                System.out.print(state.getDescription() + " ");
+        }
+
+        System.out.println("");
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class TableGenerator {
 
@@ -418,6 +526,8 @@ class TableGenerator {
         stringBuilder.append(TABLE_V_SPLIT_SYMBOL);
 
     }
+
+
 }
 
 
@@ -483,71 +593,7 @@ class TableGenerator {
 
 
 
-    /*
-     private void checkSequence() throws Exception {
-        List<String> lines = Files.lines(Paths.get(SECVENTE)).collect(Collectors.toList());
-        for(String sequence: lines){
-            for(int i=0;i<sequence.length();i++){
-                if(!alphabet.contains(Character.toString(sequence.charAt(i)))){
-                    throw new Exception("Caracterul " + sequence.charAt(i) + " din secventa " + sequence + " nu este in alfabet!");
-                }
-            }
 
-            //todo : check stuff
-        }
-    }
 
-    private boolean isRoad(State state, String letter){
-        if(state.getDestinations().containsKey(letter)){
-            return true;
-        }
-        return false;
-    }
 
-    public void checkSequence1(List<String> lines ) throws Exception {
-        //List<String> lines = new IOActions(fileName).read();
-        for (String sequence : lines) {
-            //checkIfAlphabetContainsLetters(sequence);
-
-            int i = 0;
-            StringBuilder result = new StringBuilder();
-            StringBuilder buffer = new StringBuilder();
-            State s = initialState;
-            while (i < sequence.length()
-                    && isRoad(s, Character.toString(sequence.charAt(i)))) {
-                s = s.getDestinations()
-                        .get(Character.toString(sequence.charAt(i))).get(0);
-                buffer.append(sequence.charAt(i));
-                if (s.isFinalState()) {
-                    result.delete(0, result.length());
-                    result.append(buffer);
-                }
-                i++;
-            }
-
-            printResult(sequence, result, s);
-        }
-    }
-
-    private void printResult(String sequence, StringBuilder result, State s) {
-        if (result.length() == sequence.length() && s.isFinalState()) {
-            System.out.println("Secventa " + sequence
-                    + " este acceptata de automat finit");
-        } else {
-            if (result.length() != 0) {
-                System.out
-                        .println("Secventa "
-                                + sequence
-                                + " nu este acceptata de automat finit, iar cel mai lung prefix acceptat este "
-                                + result.toString());
-            } else {
-                System.out
-                        .println("Secventa "
-                                + sequence
-                                + " nu este acceptata de automat finit si niciun prefix nu reprezinta o secventa acceptata");
-            }
-        }
-    }
-
-     */
 

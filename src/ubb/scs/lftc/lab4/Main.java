@@ -14,15 +14,17 @@ public class Main {
         System.out.println(af.theBiggestSequence("cbaababcb"));*/
 
 
-        af.read("resources/files/".concat("secvente.txt"));
-        label:
+        //af.read("resources/files/".concat("variablie.txt"));
         while (true) {
             System.out.println("1. Introduceti elemenetele automatului manual");
             System.out.println("2. Introdcueti fisierul de intrare al automatului");
-            System.out.println("3. Printati elementele automatului: ");
-            System.out.println("4. Verificati daca o secvenata apartine automatului");
-            System.out.println("5. Verificati cel mai lung prefix");
-            System.out.println("6. Iesire");
+            System.out.println("3. Printati starile automatului: ");
+            System.out.println("4. Printati alfabetul automatului: ");
+            System.out.println("5. Printati starea initiala a automatului: ");
+            System.out.println("6. Printati starile finale ale automatului: ");
+            System.out.println("7. Printati tranzitiile automatului: ");
+            System.out.println("8. Verificati secventa");
+            System.out.println("9. Iesire");
 
             Scanner scanner = new Scanner(System.in);
             String option = scanner.nextLine();
@@ -56,24 +58,29 @@ public class Main {
                     af.read("resources/files/".concat(filename));
                     break;
                 case "3":
-                    af.printAFDetails();
-                    af.drawFuckingTable();
+                    af.printStates();
                     break;
                 case "4": {
-                    System.out.println("Introduceti secventa de verificat: ");
-                    String sequence = scanner.nextLine();
-                    System.out.println(af.checkSequence(sequence) ? "Este acceptata" : "Nu este acceptata");
+                    af.printAlphabet();
                     break;
                 }
                 case "5": {
-                    System.out.println("Intoroduceti secventa inifiala: ");
-                    String sequence = scanner.nextLine();
-                    String prefix = af.theBiggestSequence(sequence);
-                    System.out.println("Cel mai lung prefix este: " + prefix);
+                    af.printInitialState();
                     break;
                 }
                 case "6":
-                    break label;
+                    af.printFinalStates();
+                    break;
+                case "7":
+                    af.drawFuckingTable();
+                    break;
+                case "8":
+                    System.out.println("Intoduceti secventa: ");
+                    String sequence = scanner.nextLine();
+                    af.checkSequence1(Collections.singletonList(sequence));
+                    break;
+                case "9":
+                    return;
                 default:
                     System.out.println("Optiune invalida");
                     break;
